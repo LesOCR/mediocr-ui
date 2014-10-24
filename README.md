@@ -5,5 +5,3 @@ MediOCR - User Interface
 This is a very fresh repository so you may not find anything of interest in here for quite a while!
 
 Thanks for visiting.
-
-Fuck you team Deimos.
