@@ -1,19 +1,19 @@
 # Global Compilation Variables
 
 # The compiler
-CC=@gcc
+CC=gcc
 
 # Pre-processor flags
-CPPFLAGS=
+CPPFLAGS=`sdl-config --cflags` `pkg-config --cflags gtk+-2.0`
 
 # C compiler flags
-CFLAGS= -Wall -Werror -std=c99 -O3
+CFLAGS= -Wall -Werror -std=c99 -O3 
 
 # Linker flags
 LDFLAGS=
 
 # Linker libs
-LDLIBS= -lm `sdl-config --cflags --libs`
+LDLIBS= -lm `sdl-config --libs` `pkg-config --libs gtk+-2.0`   
 
 # all target just call the production of main
 all: main clean
