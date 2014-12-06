@@ -29,13 +29,13 @@ int main(int argc, char *argv[] )
 
 	bouton_ouvrir = gtk_menu_item_new_with_label("Open");
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), bouton_ouvrir);
-	g_signal_connect(G_OBJECT(bouton_ouvrir), "activate", G_CALLBACK(creer_file_selection), (GtkWidget*) pWindow);
+	g_signal_connect(G_OBJECT(bouton_ouvrir), "activate", G_CALLBACK(select_file), (GtkWidget*) pWindow);
 
 	pMenuItem = gtk_menu_item_new_with_label("Save");
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
 	pMenuItem = gtk_menu_item_new_with_label("Exit");
-	g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnQuitter),(GtkWidget*) pWindow);
+	g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnExit),(GtkWidget*) pWindow);
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
 	pMenuItem = gtk_menu_item_new_with_label("File");
@@ -66,14 +66,14 @@ int main(int argc, char *argv[] )
 	return EXIT_SUCCESS;
 }
 
-void quitter(GtkWidget* widget)
+void Exit(GtkWidget *widget)
 {
 	// destruction de win et de tout ce qu'il contient
 	gtk_widget_destroy(widget);
 	gtk_main_quit();
 }
 
-void creer_file_selection()
+void select_file()
 {
 	GtkWidget *selection;
 
@@ -83,12 +83,12 @@ void creer_file_selection()
 	//On interdit l'utilisation des autres fenêtres.
 	gtk_window_set_modal(GTK_WINDOW(selection), TRUE);
 
-	g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(selection)->ok_button), "clicked", G_CALLBACK(recuperer_chemin), selection);
+	g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(selection)->ok_button), "clicked", G_CALLBACK(get_path), selection);
 
 	g_signal_connect_swapped(G_OBJECT(GTK_FILE_SELECTION(selection)->cancel_button), "clicked", G_CALLBACK(gtk_widget_destroy), selection);
 }
 
-void recuperer_chemin(GtkWidget *bouton, GtkWidget *file_selection)
+void get_path(GtkWidget *bouton, GtkWidget *file_selection)
 {
 	const gchar* chemin;
 	chemin = gtk_file_selection_get_filename(GTK_FILE_SELECTION (file_selection) );
@@ -119,7 +119,7 @@ void recuperer_chemin(GtkWidget *bouton, GtkWidget *file_selection)
 	gtk_widget_destroy(file_selection);
 }
 
-void OnQuitter(GtkWidget* widget, gpointer data)
+void OnExit(GtkWidget* widget, gpointer data)
 {
 	GtkWidget *pQuestion;
 
