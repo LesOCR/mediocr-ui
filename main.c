@@ -1,6 +1,6 @@
 #include "main.h"
 
-int main (int argc, char *argv[] )
+int main(int argc, char *argv[] )
 {
 	GtkWidget *pWindow;
 	GtkWidget *pVBox;
@@ -47,11 +47,11 @@ int main (int argc, char *argv[] )
 	/** Second sous-menu **/
 	pMenu = gtk_menu_new();
 
-	pMenuItem = gtk_menu_item_new_with_label("About...");
+	pMenuItem = gtk_menu_item_new_with_label("Contact");
 	g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnAbout),(GtkWidget*) pWindow);
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
-	pMenuItem = gtk_menu_item_new_with_label("?");
+	pMenuItem = gtk_menu_item_new_with_label("About");
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(pMenuItem), pMenu);
 
