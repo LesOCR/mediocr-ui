@@ -13,7 +13,7 @@ int main (int argc, char *argv[] )
 
 	/* Création de la fenêtre */
 	pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(pWindow), "OCRelou");
+	gtk_window_set_title(GTK_WINDOW(pWindow), "MediOCR");
 	gtk_window_set_default_size(GTK_WINDOW(pWindow), 320, 200);
 	gtk_window_maximize(GTK_WINDOW(pWindow));
 	g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -27,18 +27,18 @@ int main (int argc, char *argv[] )
 	/** Premier sous-menu **/
 	pMenu = gtk_menu_new();
 
-	bouton_ouvrir = gtk_menu_item_new_with_label("Ouvrir");
+	bouton_ouvrir = gtk_menu_item_new_with_label("Open");
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), bouton_ouvrir);
 	g_signal_connect(G_OBJECT(bouton_ouvrir), "activate", G_CALLBACK(creer_file_selection), (GtkWidget*) pWindow);
 
-	pMenuItem = gtk_menu_item_new_with_label("Enregistrer");
+	pMenuItem = gtk_menu_item_new_with_label("Save");
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
-	pMenuItem = gtk_menu_item_new_with_label("Quitter");
+	pMenuItem = gtk_menu_item_new_with_label("Exit");
 	g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnQuitter),(GtkWidget*) pWindow);
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
-	pMenuItem = gtk_menu_item_new_with_label("Fichier");
+	pMenuItem = gtk_menu_item_new_with_label("File");
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(pMenuItem), pMenu);
 
@@ -47,7 +47,7 @@ int main (int argc, char *argv[] )
 	/** Second sous-menu **/
 	pMenu = gtk_menu_new();
 
-	pMenuItem = gtk_menu_item_new_with_label("A propos de...");
+	pMenuItem = gtk_menu_item_new_with_label("About...");
 	g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnAbout),(GtkWidget*) pWindow);
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
 
@@ -77,7 +77,7 @@ void creer_file_selection()
 {
 	GtkWidget *selection;
 
-	selection = gtk_file_selection_new( g_locale_to_utf8( "Sélectionnez un fichier", -1, NULL, NULL, NULL) );
+	selection = gtk_file_selection_new( g_locale_to_utf8( "Select a file", -1, NULL, NULL, NULL) );
 	gtk_widget_show(selection);
 
 	//On interdit l'utilisation des autres fenêtres.
@@ -127,8 +127,8 @@ void OnQuitter(GtkWidget* widget, gpointer data)
 			GTK_DIALOG_MODAL,
 			GTK_MESSAGE_QUESTION,
 			GTK_BUTTONS_YES_NO,
-			"Voulez vous vraiment\n"
-			"quitter le programme?");
+			"Are you sure\n"
+			"you want to exit?");
 
 	switch(gtk_dialog_run(GTK_DIALOG(pQuestion)))
 	{
@@ -150,8 +150,7 @@ void OnAbout(GtkWidget* widget, gpointer data)
 			GTK_DIALOG_MODAL,
 			GTK_MESSAGE_INFO,
 			GTK_BUTTONS_OK,
-			"Our website\n"
-			"here soon");
+			"https://mediocr.io");
 
 	gtk_dialog_run(GTK_DIALOG(pAbout));
 
