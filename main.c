@@ -1,6 +1,6 @@
 #include "main.h"
 
-int start (int argc, char *argv[] )
+int main (int argc, char *argv[] )
 {
 	GtkWidget *pWindow;
 	GtkWidget *pVBox;
@@ -58,23 +58,23 @@ int start (int argc, char *argv[] )
 	gtk_menu_shell_append(GTK_MENU_SHELL(pMenuBar), pMenuItem);
 
 	/* Ajout du menu a la fenetre */
-	gtk_box_pack_start(GTK_BOX(pVBox), pMenuBar, FALSE, FALSE, 0); 
+	gtk_box_pack_start(GTK_BOX(pVBox), pMenuBar, FALSE, FALSE, 0);
 
 	gtk_widget_show_all(pWindow);
 
 	gtk_main();
-	return EXIT_SUCCESS; 
+	return EXIT_SUCCESS;
 }
 
 void quitter(GtkWidget* widget)
-{   
+{
 	// destruction de win et de tout ce qu'il contient
 	gtk_widget_destroy(widget);
 	gtk_main_quit();
 }
 
 void creer_file_selection()
-{   
+{
 	GtkWidget *selection;
 
 	selection = gtk_file_selection_new( g_locale_to_utf8( "Sélectionnez un fichier", -1, NULL, NULL, NULL) );
