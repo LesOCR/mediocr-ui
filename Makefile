@@ -16,11 +16,11 @@ LDFLAGS=
 LDLIBS= -lm `sdl-config --libs` `pkg-config --libs gtk+-2.0`   
 
 # all target just call the production of main
-all: main clean
+all: main test clean
 
 # main target using implicit rules, just express dependencies
 main: main.o
-
+test : test.o
 .PHONY: clean
 
 # clean compilation products
