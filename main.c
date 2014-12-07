@@ -8,16 +8,27 @@ int main(int argc, char *argv[] )
 	GtkWidget *pMenu;
 	GtkWidget *pMenuItem;
 	GtkWidget *bouton_ouvrir;
+	GtkWidget *layout;
+	GtkWidget *image;
 
 	gtk_init(&argc, &argv);
 
 	/* Création de la fenêtre */
+
+
 	pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(pWindow), "MediOCR");
-	gtk_window_set_default_size(GTK_WINDOW(pWindow), 320, 200);
-	gtk_window_maximize(GTK_WINDOW(pWindow));
-	g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+	gtk_window_set_default_size(GTK_WINDOW(pWindow), 290, 200);
 
+	layout = gtk_layout_new(NULL, NULL);
+	gtk_container_add(GTK_CONTAINER (pWindow), NULL);
+	gtk_widget_show(layout);
+
+	image = gtk_image_new_from_file("mediocr.png");
+	gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
+
+	g_signal_connect_swapped(G_OBJECT(pWindow), "destroy",
+			G_CALLBACK(gtk_main_quit), NULL);
 	/* Création de la GtkVBox */
 	pVBox = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
