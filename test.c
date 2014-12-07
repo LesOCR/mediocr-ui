@@ -17,7 +17,7 @@ int main( int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER (window), layout);
 	gtk_widget_show(layout);
 
-	image = gtk_image_new_from_file("mediocr.png");
+	image = gtk_image_new_from_file("data/mediocr.png");
 	gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
 
 	button = gtk_button_new_with_label("Button");

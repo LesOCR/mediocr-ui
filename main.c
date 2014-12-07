@@ -21,10 +21,10 @@ int main(int argc, char *argv[] )
 	gtk_window_set_default_size(GTK_WINDOW(pWindow), 290, 200);
 
 	layout = gtk_layout_new(NULL, NULL);
-	gtk_container_add(GTK_CONTAINER (pWindow), NULL);
+	gtk_container_add(GTK_CONTAINER (pWindow), layout);
 	gtk_widget_show(layout);
 
-	image = gtk_image_new_from_file("mediocr.png");
+	image = gtk_image_new_from_file("data/mediocr.png");
 	gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
 
 	g_signal_connect_swapped(G_OBJECT(pWindow), "destroy",
