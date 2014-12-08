@@ -1,169 +1,147 @@
 #include "main.h"
 
-int main(int argc, char *argv[] )
-{
-	GtkWidget *pWindow;
-	GtkWidget *pVBox;
-	GtkWidget *pMenuBar;
-	GtkWidget *pMenu;
-	GtkWidget *pMenuItem;
-	GtkWidget *bouton_ouvrir;
-	GtkWidget *layout;
-	GtkWidget *image;
-
-	gtk_init(&argc, &argv);
-
-	/* Création de la fenêtre */
 
 
-	pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(pWindow), "MediOCR");
-	gtk_window_set_default_size(GTK_WINDOW(pWindow), 290, 200);
+//Creates the main window
+int main (int argc, char *argv[]) {
 
-	layout = gtk_layout_new(NULL, NULL);
-	gtk_container_add(GTK_CONTAINER (pWindow), layout);
-	gtk_widget_show(layout);
+	struct main_window mW;
 
-	image = gtk_image_new_from_file("data/mediocr.png");
-	gtk_layout_put(GTK_LAYOUT(layout), image, 0, 0);
+	gtk_init (&argc, &argv);
 
-	g_signal_connect_swapped(G_OBJECT(pWindow), "destroy",
-			G_CALLBACK(gtk_main_quit), NULL);
-	/* Création de la GtkVBox */
-	pVBox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
+	//Builds the interface elements
+	mW.builder = gtk_builder_new ();
+		gtk_builder_add_from_file (mW.builder, "form.glade", NULL);
 
-	/**** Création du menu ****/
-	pMenuBar = gtk_menu_bar_new();
-	/** Premier sous-menu **/
-	pMenu = gtk_menu_new();
+	mW.window = gtk_builder_get_object (mW.builder, "main_window");
+		g_signal_connect (mW.window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
 
-	bouton_ouvrir = gtk_menu_item_new_with_label("Open");
-	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), bouton_ouvrir);
-	g_signal_connect(G_OBJECT(bouton_ouvrir), "activate", G_CALLBACK(select_file), (GtkWidget*) pWindow);
+	mW.button_open = gtk_builder_get_object (mW.builder, "open_button");
+		g_signal_connect (mW.button_open, "activate", G_CALLBACK (openFileWindow),
+			&mW);
 
-	pMenuItem = gtk_menu_item_new_with_label("Save");
-	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
+	mW.textArea = gtk_builder_get_object (mW.builder, "output");
+		mW.text = gtk_text_buffer_new(NULL);
+		gtk_text_view_set_buffer((GtkTextView*) mW.textArea, mW.text);
+		setText(&mW, "Empty");
 
-	pMenuItem = gtk_menu_item_new_with_label("Exit");
-	g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnExit),(GtkWidget*) pWindow);
-	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
+	GdkPixbuf* logo_pixbuf = gdk_pixbuf_new_from_file("data/mediocr.png", NULL);
+	gdk_pixbuf_scale_simple(logo_pixbuf, 200, 200, GDK_INTERP_BILINEAR);
+	GtkImage* logo_image = (GtkImage*) gtk_builder_get_object (mW.builder, "logo_image");
+	gtk_image_set_from_pixbuf(logo_image, logo_pixbuf);
 
-	pMenuItem = gtk_menu_item_new_with_label("File");
 
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(pMenuItem), pMenu);
+	mW.imageArea = (GtkImage*)gtk_builder_get_object (mW.builder, "input");
 
-	gtk_menu_shell_append(GTK_MENU_SHELL(pMenuBar), pMenuItem);
+	//Connects the buttons to their respective functions
+	gtk_builder_connect_signals( mW.builder, NULL );
 
-	/** Second sous-menu **/
-	pMenu = gtk_menu_new();
+	//Displays the main window
+	gtk_widget_show((GtkWidget*) mW.window);
 
-	pMenuItem = gtk_menu_item_new_with_label("Contact");
-	g_signal_connect(G_OBJECT(pMenuItem), "activate", G_CALLBACK(OnAbout),(GtkWidget*) pWindow);
-	gtk_menu_shell_append(GTK_MENU_SHELL(pMenu), pMenuItem);
+	g_signal_connect(G_OBJECT(mW.window), "configure-event",
+        G_CALLBACK(onResize), &mW);
 
-	pMenuItem = gtk_menu_item_new_with_label("About");
-
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(pMenuItem), pMenu);
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(pMenuBar), pMenuItem);
-
-	/* Ajout du menu a la fenetre */
-	gtk_box_pack_start(GTK_BOX(pVBox), pMenuBar, FALSE, FALSE, 0);
-
-	gtk_widget_show_all(pWindow);
 
 	gtk_main();
-	return EXIT_SUCCESS;
+
+	return 0;
 }
 
-void Exit(GtkWidget *widget)
-{
-	// destruction de win et de tout ce qu'il contient
-	gtk_widget_destroy(widget);
-	gtk_main_quit();
+//Create the "open-file" window
+void  openFileWindow(GtkWidget *widget, gpointer data) {
+	// struct main_window* mW = (struct main_window*) data;
+	// GtkWidget *dialog;
+	//
+	// dialog = gtk_file_chooser_dialog_new ("Open Input File",
+	// 											GTK_WINDOW (mW->window),
+	// 											GTK_FILE_CHOOSER_ACTION_OPEN,
+	// 											GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	// 											GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+	// 											NULL);
+	//
+	// if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
+	// 	char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+	// 	loadFile(mW, filename);
+	// }
+	// gtk_widget_destroy (dialog);
 }
 
-void select_file()
-{
-	GtkWidget *selection;
+//Loads an image and launches the detection process
+int loadFile(struct main_window *mW, char *path) {
+	//Save path
+	strcpy(mW->path, path);
 
-	selection = gtk_file_selection_new( g_locale_to_utf8( "Select a file", -1, NULL, NULL, NULL) );
-	gtk_widget_show(selection);
+	//Store the buffer in memory and make a copy
+	mW->processPixbuf = gdk_pixbuf_new_from_file(mW->path, NULL);
+	mW->previewPixbuf = gdk_pixbuf_copy(mW->processPixbuf);
 
-	//On interdit l'utilisation des autres fenêtres.
-	gtk_window_set_modal(GTK_WINDOW(selection), TRUE);
 
-	g_signal_connect(G_OBJECT(GTK_FILE_SELECTION(selection)->ok_button), "clicked", G_CALLBACK(get_path), selection);
+	//Orignal => Gray
+	// struct array *gray = get_array_from_pixbuf(mW->processPixbuf);
 
-	g_signal_connect_swapped(G_OBJECT(GTK_FILE_SELECTION(selection)->cancel_button), "clicked", G_CALLBACK(gtk_widget_destroy), selection);
+	//Gray => Edge Detection
+	// struct array *edgeDetected = edgeDetection(gray);
+
+	// //Edge Detection => Hough Transform
+	// struct hough *hough = houghTransform(edgeDetected);
+	// GdkPixbuf *edgeDetectedPixbuf = binaryToPixbuf(edgeDetected);
+
+	// //Hough Transform => Line Detection
+	// lineDetection(hough, gray, edgeDetectedPixbuf);
+
+
+	// GdkPixbuf *pixbuf = arrayToPixbuf(gray);
+	// detectSkew(pixbuf, gray);
+	// plotLine(pixbuf, 50, 50, 3000, 2200);
+
+	//Display preview
+	previewFromPix(mW, mW->previewPixbuf);
+	return 0;
 }
 
-void get_path(GtkWidget *bouton, GtkWidget *file_selection)
-{
-	const gchar* chemin;
-	chemin = gtk_file_selection_get_filename(GTK_FILE_SELECTION (file_selection) );
+//Sets the preview-window from a pixbuffer
+void previewFromPix(struct main_window *mW, GdkPixbuf* pixBuf) {
 
-	GtkWidget *pWindow;
-	GtkWidget *pVBox;
-	GtkWidget *pImage;
-	GtkWidget *pQuitBtn;
+	//Get container size
+	int containerWidth = gtk_widget_get_allocated_width((GtkWidget*) mW->imageArea);
+	int containerHeight = gtk_widget_get_allocated_height((GtkWidget*) mW->imageArea);
 
-	pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(pWindow), 320, 200); //
-	gtk_window_set_title(GTK_WINDOW(pWindow), "Input");
-	g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+	//Get image size
+	int pixWidth = gdk_pixbuf_get_width(pixBuf);
+	int pixHeight = gdk_pixbuf_get_height(pixBuf);
 
-	pVBox = gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
+	float ratio = (float)pixWidth/(float)pixHeight;
 
-	/* Chargement d'une image a partir d'un fichier */
-	pImage = gtk_image_new_from_file(chemin);
-	gtk_box_pack_start(GTK_BOX(pVBox), pImage, FALSE, FALSE, 5);
+	int previewWidth, previewHeight;
 
-	pQuitBtn = gtk_button_new();
-	gtk_box_pack_start(GTK_BOX(pVBox), pQuitBtn, TRUE, FALSE, 5);
-	g_signal_connect(G_OBJECT(pQuitBtn), "clicked", G_CALLBACK(gtk_main_quit), NULL);
-
-	gtk_widget_show_all(pWindow);
-
-	gtk_widget_destroy(file_selection);
-}
-
-void OnExit(GtkWidget* widget, gpointer data)
-{
-	GtkWidget *pQuestion;
-
-	pQuestion = gtk_message_dialog_new(GTK_WINDOW(data),
-			GTK_DIALOG_MODAL,
-			GTK_MESSAGE_QUESTION,
-			GTK_BUTTONS_YES_NO,
-			"Are you sure\n"
-			"you want to exit?");
-
-	switch(gtk_dialog_run(GTK_DIALOG(pQuestion)))
-	{
-		case GTK_RESPONSE_YES:
-			gtk_main_quit();
-			break;
-		case GTK_RESPONSE_NONE:
-		case GTK_RESPONSE_NO:
-			gtk_widget_destroy(pQuestion);
-			break;
+	//Preview size computation
+	if (pixWidth > pixHeight) {
+		previewWidth = containerWidth;
+		previewHeight = (int)((float)containerWidth/ratio);
+	} else {
+		previewHeight = containerHeight;
+		previewWidth = (int)((float)containerHeight*ratio);
 	}
+
+	//Set size and apply
+	mW->previewPixbuf = gdk_pixbuf_scale_simple(pixBuf, previewWidth, previewHeight, GDK_INTERP_BILINEAR);
+	gtk_image_set_from_pixbuf(mW->imageArea, mW->previewPixbuf);
 }
 
-void OnAbout(GtkWidget* widget, gpointer data)
-{
-	GtkWidget *pAbout;
+int onResize(GtkWidget *widget, gpointer data) {
+  // struct main_window* mW = (struct main_window*) data;
+	// previewFromPix(mW, edgeDetectedPixbuf);
+	return 0;
+}
 
-	pAbout = gtk_message_dialog_new(GTK_WINDOW(data),
-			GTK_DIALOG_MODAL,
-			GTK_MESSAGE_INFO,
-			GTK_BUTTONS_OK,
-			"https://mediocr.io");
+int setText(struct main_window *mW, char* text) {
+	gtk_text_buffer_set_text(mW->text, text, strlen(text));
+	return 0;
+}
 
-	gtk_dialog_run(GTK_DIALOG(pAbout));
-
-	gtk_widget_destroy(pAbout);
+int gtk_quit(struct main_window *mW) {
+	gtk_widget_destroy((GtkWidget*) mW->window);
+  gtk_main_quit();
+	return 0;
 }
